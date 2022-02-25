@@ -66,14 +66,8 @@ UsdErrors USD2SDF::Read(const std::string &_filename,
   }
   world->SetAttribute("name", (worldName + "_world").c_str());
 
-  tinyxml2::XMLElement *physics = nullptr;
-  physics = _sdfXmlOut->NewElement("physics");
-  AddKeyValue(physics, "gravity", Vector32Str(
+  AddKeyValue(world, "gravity", Vector32Str(
     worldInterface->gravity * worldInterface->magnitude));
-  world->LinkEndChild(physics);
-
-  // <physics type="ode">
-  //   <gravity>1 0 -9.8</gravity>
 
   sdf->LinkEndChild(world);
   _sdfXmlOut->LinkEndChild(sdf);
