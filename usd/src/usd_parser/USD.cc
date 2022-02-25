@@ -60,7 +60,7 @@ namespace usd
         std::pair<std::string, std::shared_ptr<USDStage>> data =
           usdData.FindStage(prim.GetPath().GetName());
 
-        ParsePhysicsScene(prim, _world, data.second->GetMetersPerUnit());
+        ParsePhysicsScene(prim, _world, data.second->MetersPerUnit());
         continue;
       }
     }
