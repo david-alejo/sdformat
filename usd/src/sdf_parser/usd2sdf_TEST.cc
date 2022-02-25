@@ -74,6 +74,31 @@ TEST(version_cmd, IGN_UTILS_TEST_DISABLED_ON_WIN32(SDF))
 }
 
 /////////////////////////////////////////////////
+TEST(check_cmd, IGN_UTILS_TEST_DISABLED_ON_WIN32(SDF))
+{
+  std::string pathBase = PROJECT_SOURCE_PATH;
+  pathBase = ignition::common::joinPaths(pathBase, "test", "sdf");
+
+  auto tmpDir = ignition::common::tempDirectoryPath();
+  auto tmp = ignition::common::createTempDirectory("usd", tmpDir);
+  // Check a good SDF file
+  {
+    std::string path = sdf::testing::TestFile("sdf", "upAxisZ.usd");
+    const auto outputUsdFilePath =
+      ignition::common::joinPaths(tmp, "upAxisZ.sdf");
+    EXPECT_FALSE(ignition::common::isFile(outputUsdFilePath));
+    std::string output =
+      custom_exec_str(usd2sdfCommand() + " " + path + " " + outputUsdFilePath);
+
+    // make sure that a shapes.usd file was generated
+    EXPECT_TRUE(ignition::common::isFile(outputUsdFilePath)) << output;
+
+    // TODO(anyone): Check the contents of outputUsdFilePath when the parser
+    // is implemented
+  }
+}
+
+/////////////////////////////////////////////////
 /// Main
 int main(int argc, char **argv)
 {

@@ -7,6 +7,10 @@ set(sources
   sdf_parser/Model.cc
   sdf_parser/Visual.cc
   sdf_parser/World.cc
+  usd_parser/Parse_USD.cc
+  usd_parser/Physics.cc
+  usd_parser/USD.cc
+  usd_parser/USD2SDF.cc
   usd_parser/USDData.cc
   usd_parser/USDStage.cc
   usd_parser/utils.cc
