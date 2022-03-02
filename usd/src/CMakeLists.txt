@@ -5,6 +5,7 @@ set(sources
   sdf_parser/Light.cc
   sdf_parser/Link.cc
   sdf_parser/Model.cc
+  sdf_parser/Sensor.cc
   sdf_parser/Visual.cc
   sdf_parser/World.cc
   usd_parser/Parse_USD.cc
@@ -13,7 +14,7 @@ set(sources
   usd_parser/USD2SDF.cc
   usd_parser/USDData.cc
   usd_parser/USDStage.cc
-  usd_parser/utils.cc
+  usd_parser/USDMaterial.cc
 )
 
 ign_add_component(usd SOURCES ${sources} GET_TARGET_NAME usd_target)
@@ -37,6 +38,7 @@ set(gtest_sources
   sdf_parser/Joint_Sdf2Usd_TEST.cc
   sdf_parser/Light_Sdf2Usd_TEST.cc
   sdf_parser/Link_Sdf2Usd_TEST.cc
+  sdf_parser/Sensors_Sdf2Usd_TEST.cc
   sdf_parser/Visual_Sdf2Usd_TEST.cc
   sdf_parser/World_Sdf2Usd_TEST.cc
   usd_parser/USDData_TEST.cc
