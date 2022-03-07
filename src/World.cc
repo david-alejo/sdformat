@@ -29,6 +29,7 @@
 #include "sdf/Model.hh"
 #include "sdf/ParserConfig.hh"
 #include "sdf/Physics.hh"
+#include "sdf/Plugin.hh"
 #include "sdf/Types.hh"
 #include "sdf/World.hh"
 #include "FrameSemantics.hh"
@@ -105,8 +106,10 @@ class sdf::World::Implementation
   /// \brief Scoped Pose Relative-To graph that points to a graph owned by this
   /// world.
   public: sdf::ScopedGraph<sdf::PoseRelativeToGraph> poseRelativeToGraph;
-};
 
+  /// \brief World plugins.
+  public: sdf::Plugins plugins;
+};
 
 /////////////////////////////////////////////////
 World::World()
@@ -311,6 +314,11 @@ Errors World::Load(sdf::ElementPtr _sdf, const ParserConfig &_config)
     errors.insert(errors.end(), sceneLoadErrors.begin(), sceneLoadErrors.end());
   }
 
+  // Load the world plugins
+  Errors pluginErrors = loadRepeated<Plugin>(_sdf, "plugin",
+    this->dataPtr->plugins);
+  errors.insert(errors.end(), pluginErrors.begin(), pluginErrors.end());
+
   return errors;
 }
 
@@ -400,6 +408,13 @@ const Model *World::ModelByIndex(const uint64_t _index) const
 }
 
 /////////////////////////////////////////////////
+Model *World::ModelByIndex(uint64_t _index)
+{
+  return const_cast<Model*>(
+      static_cast<const World*>(this)->ModelByIndex(_index));
+}
+
+/////////////////////////////////////////////////
 bool World::ModelNameExists(const std::string &_name) const
 {
   return nullptr != this->ModelByName(_name);
@@ -426,6 +441,13 @@ const Model *World::ModelByName(const std::string &_name) const
     return nextModel->ModelByName(_name.substr(index + 2));
   }
   return nextModel;
+}
+
+/////////////////////////////////////////////////
+Model *World::ModelByName(const std::string &_name)
+{
+  return const_cast<Model*>(
+      static_cast<const World*>(this)->ModelByName(_name));
 }
 
 /////////////////////////////////////////////////
@@ -499,6 +521,13 @@ const Frame *World::FrameByIndex(const uint64_t _index) const
 }
 
 /////////////////////////////////////////////////
+Frame *World::FrameByIndex(uint64_t _index)
+{
+  return const_cast<Frame*>(
+      static_cast<const World*>(this)->FrameByIndex(_index));
+}
+
+/////////////////////////////////////////////////
 bool World::FrameNameExists(const std::string &_name) const
 {
   return nullptr != this->FrameByName(_name);
@@ -534,6 +563,13 @@ const Frame *World::FrameByName(const std::string &_name) const
 }
 
 /////////////////////////////////////////////////
+Frame *World::FrameByName(const std::string &_name)
+{
+  return const_cast<Frame*>(
+      static_cast<const World*>(this)->FrameByName(_name));
+}
+
+/////////////////////////////////////////////////
 uint64_t World::LightCount() const
 {
   return this->dataPtr->lights.size();
@@ -545,6 +581,13 @@ const Light *World::LightByIndex(const uint64_t _index) const
   if (_index < this->dataPtr->lights.size())
     return &this->dataPtr->lights[_index];
   return nullptr;
+}
+
+/////////////////////////////////////////////////
+Light *World::LightByIndex(uint64_t _index)
+{
+  return const_cast<Light*>(
+      static_cast<const World*>(this)->LightByIndex(_index));
 }
 
 /////////////////////////////////////////////////
@@ -575,6 +618,13 @@ const Actor *World::ActorByIndex(const uint64_t _index) const
 }
 
 /////////////////////////////////////////////////
+Actor *World::ActorByIndex(uint64_t _index)
+{
+  return const_cast<Actor*>(
+      static_cast<const World*>(this)->ActorByIndex(_index));
+}
+
+/////////////////////////////////////////////////
 bool World::ActorNameExists(const std::string &_name) const
 {
   for (auto const &a : this->dataPtr->actors)
@@ -599,6 +649,13 @@ const Physics *World::PhysicsByIndex(const uint64_t _index) const
   if (_index < this->dataPtr->physics.size())
     return &this->dataPtr->physics[_index];
   return nullptr;
+}
+
+//////////////////////////////////////////////////
+Physics *World::PhysicsByIndex(uint64_t _index)
+{
+  return const_cast<Physics*>(
+      static_cast<const World*>(this)->PhysicsByIndex(_index));
 }
 
 //////////////////////////////////////////////////
@@ -667,8 +724,8 @@ void World::SetPoseRelativeToGraph(sdf::ScopedGraph<PoseRelativeToGraph> _graph)
   }
   for (auto &ifaceModelPair : this->dataPtr->interfaceModels)
   {
-    ifaceModelPair.second->InvokeRespostureFunction(
-        this->dataPtr->poseRelativeToGraph);
+    ifaceModelPair.second->InvokeRepostureFunction(
+        this->dataPtr->poseRelativeToGraph, {});
   }
   for (auto &frame : this->dataPtr->frames)
   {
@@ -799,7 +856,7 @@ Errors World::Implementation::LoadSphericalCoordinates(
 }
 
 /////////////////////////////////////////////////
-sdf::ElementPtr World::ToElement() const
+sdf::ElementPtr World::ToElement(bool _useIncludeTag) const
 {
   sdf::ElementPtr elem(new sdf::Element);
   sdf::initFile("world.sdf", elem);
@@ -817,7 +874,7 @@ sdf::ElementPtr World::ToElement() const
 
   // Models
   for (const sdf::Model &model : this->dataPtr->models)
-    elem->InsertElement(model.ToElement(), true);
+    elem->InsertElement(model.ToElement(_useIncludeTag), true);
 
   // Actors
   for (const sdf::Actor &actor : this->dataPtr->actors)
@@ -861,6 +918,10 @@ sdf::ElementPtr World::ToElement() const
   if (this->dataPtr->audioDevice != "default")
     elem->GetElement("audio")->GetElement("device")->Set(this->AudioDevice());
 
+  // Add in the plugins
+  for (const Plugin &plugin : this->dataPtr->plugins)
+    elem->InsertElement(plugin.ToElement(), true);
+
   return elem;
 }
 
@@ -886,6 +947,12 @@ void World::ClearLights()
 void World::ClearPhysics()
 {
   this->dataPtr->physics.clear();
+}
+
+/////////////////////////////////////////////////
+void World::ClearFrames()
+{
+  this->dataPtr->frames.clear();
 }
 
 /////////////////////////////////////////////////
@@ -921,12 +988,42 @@ bool World::AddLight(const Light &_light)
 bool World::AddPhysics(const Physics &_physics)
 {
   if (this->PhysicsNameExists(_physics.Name()))
-  {
-    std::cout << "Not adding physics, it exists\n";
     return false;
-  }
-    std::cout << "Adding physics\n";
   this->dataPtr->physics.push_back(_physics);
 
   return true;
+}
+
+/////////////////////////////////////////////////
+bool World::AddFrame(const Frame &_frame)
+{
+  if (this->FrameNameExists(_frame.Name()))
+    return false;
+  this->dataPtr->frames.push_back(_frame);
+
+  return true;
+}
+
+/////////////////////////////////////////////////
+const sdf::Plugins &World::Plugins() const
+{
+  return this->dataPtr->plugins;
+}
+
+/////////////////////////////////////////////////
+sdf::Plugins &World::Plugins()
+{
+  return this->dataPtr->plugins;
+}
+
+/////////////////////////////////////////////////
+void World::ClearPlugins()
+{
+  this->dataPtr->plugins.clear();
+}
+
+/////////////////////////////////////////////////
+void World::AddPlugin(const Plugin &_plugin)
+{
+  this->dataPtr->plugins.push_back(_plugin);
 }
