@@ -29,6 +29,7 @@
 #include "sdf/Magnetometer.hh"
 #include "sdf/Lidar.hh"
 #include "sdf/parser.hh"
+#include "sdf/Radar.hh"
 #include "sdf/Sensor.hh"
 #include "sdf/Types.hh"
 #include "FrameSemantics.hh"
@@ -49,11 +50,13 @@ const std::vector<std::string> sensorTypeStrs =
   "force_torque",
   "gps",
   "gpu_lidar",
+  "gpu_radar",
   "imu",
   "logical_camera",
   "magnetometer",
   "multicamera",
   "lidar",
+  "radar",
   "rfid",
   "rfidtag",
   "sonar",
@@ -122,6 +125,9 @@ class sdf::Sensor::Implementation
   /// \brief Optional lidar.
   public: std::optional<Lidar> lidar;
 
+  /// \brief Optional radar.
+  public: std::optional<Radar> radar;
+
   // Developer note: If you add a new sensor type, make sure to also
   // update the Sensor::operator== function. Please bump this text down as
   // new sensors are added so that the next developer sees the message.
@@ -177,6 +183,9 @@ bool Sensor::operator==(const Sensor &_sensor) const
       return *(this->dataPtr->camera) == *(_sensor.dataPtr->camera);
     case SensorType::LIDAR:
       return *(this->dataPtr->lidar) == *(_sensor.dataPtr->lidar);
+
+    case SensorType::RADAR:
+      return *(this->dataPtr->radar) == *(_sensor.dataPtr->radar);
     case SensorType::NONE:
     default:
       return true;
@@ -336,6 +345,14 @@ Errors Sensor::Load(ElementPtr _sdf)
         _sdf->GetElement(_sdf->HasElement("lidar") ? "lidar" : "ray"));
     errors.insert(errors.end(), err.begin(), err.end());
   }
+  else if (type == "gpu_radar")
+  {
+    this->dataPtr->type = SensorType::GPU_RADAR;
+    this->dataPtr->radar.emplace();
+    Errors err = this->dataPtr->radar->Load(
+        _sdf->GetElement("radar"));
+    errors.insert(errors.end(), err.begin(), err.end());
+  }
   else if (type == "imu")
   {
     this->dataPtr->type = SensorType::IMU;
@@ -365,6 +382,14 @@ Errors Sensor::Load(ElementPtr _sdf)
     this->dataPtr->lidar.emplace();
     Errors err = this->dataPtr->lidar->Load(
         _sdf->GetElement(_sdf->HasElement("lidar") ? "lidar" : "ray"));
+    errors.insert(errors.end(), err.begin(), err.end());
+  }
+  else if (type == "radar")
+  {
+    this->dataPtr->type = SensorType::RADAR;
+    this->dataPtr->radar.emplace();
+    Errors err = this->dataPtr->radar->Load(
+        _sdf->GetElement("radar"));
     errors.insert(errors.end(), err.begin(), err.end());
   }
   else if (type == "rfid")
@@ -589,6 +614,24 @@ void Sensor::SetLidarSensor(const Lidar &_lidar)
 }
 
 /////////////////////////////////////////////////
+const Radar *Sensor::RadarSensor() const
+{
+  return optionalToPointer(this->dataPtr->radar);
+}
+
+/////////////////////////////////////////////////
+Radar *Sensor::RadarSensor()
+{
+  return optionalToPointer(this->dataPtr->radar);
+}
+
+/////////////////////////////////////////////////
+void Sensor::SetRadarSensor(const Radar &_radar)
+{
+  this->dataPtr->radar = _radar;
+}
+
+/////////////////////////////////////////////////
 double Sensor::UpdateRate() const
 {
   return this->dataPtr->updateRate;
@@ -742,6 +785,14 @@ sdf::ElementPtr Sensor::ToElement() const
     sdf::ElementPtr rayElem = (elem->HasElement("ray")) ?
         elem->GetElement("ray") : elem->GetElement("lidar");
     rayElem->Copy(this->dataPtr->lidar->ToElement());
+  }
+  // radar, gpu_radar
+  else if ((this->Type() == sdf::SensorType::GPU_RADAR ||
+            this->Type() == sdf::SensorType::RADAR) &&
+           this->dataPtr->radar)
+  {
+    sdf::ElementPtr radarElem = elem->GetElement("radar");
+    radarElem->Copy(this->dataPtr->radar->ToElement());
   }
   // magnetometer
   else if (this->Type() == sdf::SensorType::MAGNETOMETER &&

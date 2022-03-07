@@ -445,6 +445,17 @@ TEST(DOMLink, Sensors)
   const sdf::Lidar *gpuLidar = gpuLidarSensor->LidarSensor();
   ASSERT_NE(nullptr, gpuLidar);
 
+  // Get the gpu_radar sensor
+  const sdf::Sensor *gpuRadarSensor = link->SensorByName("gpu_radar_sensor");
+  ASSERT_NE(nullptr, gpuRadarSensor);
+  EXPECT_EQ("gpu_radar_sensor", gpuRadarSensor->Name());
+  EXPECT_EQ(sdf::SensorType::GPU_RADAR, gpuRadarSensor->Type());
+  EXPECT_EQ(ignition::math::Pose3d(1, 2, 3, 0, 0, 0),
+            gpuRadarSensor->RawPose());
+  EXPECT_FALSE(gpuRadarSensor->EnableMetrics());
+  const sdf::Radar *gpuRadar = gpuRadarSensor->RadarSensor();
+  ASSERT_NE(nullptr, gpuRadar);
+
   // Get the imu sensor
   const sdf::Sensor *imuSensor = link->SensorByName("imu_sensor");
   ASSERT_NE(nullptr, imuSensor);

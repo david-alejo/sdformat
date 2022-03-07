@@ -43,6 +43,7 @@ namespace sdf
   class Magnetometer;
   class NavSat;
   struct PoseRelativeToGraph;
+  class Radar;
   template <typename T> class ScopedGraph;
 
   /// \enum SensorType
@@ -128,7 +129,13 @@ namespace sdf
     CUSTOM = 24,
 
     /// \brief A wide angle camera sensor
-    WIDE_ANGLE_CAMERA = 25
+    WIDE_ANGLE_CAMERA = 25, 
+
+    /// \brief A CPU based radar sensor.
+    RADAR = 26,
+
+    /// \brief A gpu radar sensor
+    GPU_RADAR = 27
   };
 
   /// \brief Information about an SDF sensor.
@@ -397,6 +404,24 @@ namespace sdf
     /// \brief Set the lidar sensor.
     /// \param[in] _lidar The lidar sensor.
     public: void SetLidarSensor(const Lidar &_lidar);
+
+    /// \brief Get the radar sensor, or nullptr if this sensor type is not a
+    /// Radar.
+    /// \return Pointer to the Radar sensor, or nullptr if this Sensor is not a
+    /// Radar.
+    /// \sa SensorType Type() const
+    public: const Radar *RadarSensor() const;
+
+    /// \brief Get a mutable radar sensor, or nullptr if this sensor type is
+    /// not a Radar.
+    /// \return Pointer to the Radar sensor, or nullptr if this Sensor is not a
+    /// Lidar.
+    /// \sa SensorType Type() const
+    public: Radar *RadarSensor();
+
+    /// \brief Set the radar sensor.
+    /// \param[in] _radar The radar sensor.
+    public: void SetRadarSensor(const Radar &_radar);
 
     /// \brief Give the name of the xml parent of this object, to be used
     /// for resolving poses. This is private and is intended to be called by

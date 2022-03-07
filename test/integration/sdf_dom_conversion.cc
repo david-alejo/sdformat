@@ -31,6 +31,7 @@
 #include "sdf/Magnetometer.hh"
 #include "sdf/Model.hh"
 #include "sdf/parser.hh"
+#include "sdf/Radar.hh"
 #include "sdf/Root.hh"
 #include "sdf/Sensor.hh"
 #include "sdf/World.hh"
@@ -258,6 +259,38 @@ TEST(SDFDomConversion, Sensors)
     EXPECT_DOUBLE_EQ(0.08, gpuLidar->RangeMin());
     EXPECT_DOUBLE_EQ(10.0, gpuLidar->RangeMax());
     EXPECT_DOUBLE_EQ(0.01, gpuLidar->RangeResolution());
+  }
+
+  // gpu radar
+  {
+    const sdf::Sensor *sensor = link->SensorByName("gpu_radar_sensor");
+    // convert to sdf element and load it back
+    sdf::ElementPtr sensorElem = sensor->ToElement();
+    auto gpuRadarSensor = std::make_unique<sdf::Sensor>();
+    gpuRadarSensor->Load(sensorElem);
+
+    ASSERT_NE(nullptr, gpuRadarSensor);
+    EXPECT_EQ("gpu_radar_sensor", gpuRadarSensor->Name());
+    EXPECT_EQ(sdf::SensorType::GPU_RADAR, gpuRadarSensor->Type());
+    EXPECT_EQ(ignition::math::Pose3d(1, 2, 3, 0, 0, 0),
+              gpuRadarSensor->RawPose());
+    EXPECT_FALSE(gpuRadarSensor->EnableMetrics());
+    const sdf::Radar *gpuRadar = gpuRadarSensor->RadarSensor();
+    ASSERT_NE(nullptr, gpuRadar);
+    EXPECT_EQ(640u, gpuRadar->HorizontalScanSamples());
+    EXPECT_DOUBLE_EQ(1u, gpuRadar->HorizontalScanResolution());
+    EXPECT_EQ(ignition::math::Angle(-1.396263),
+        gpuRadar->HorizontalScanMinAngle());
+    EXPECT_EQ(ignition::math::Angle(1.396263),
+        gpuRadar->HorizontalScanMaxAngle());
+    EXPECT_EQ(1u, gpuRadar->VerticalScanSamples());
+    EXPECT_DOUBLE_EQ(0.01, gpuRadar->VerticalScanResolution());
+    EXPECT_EQ(ignition::math::Angle(0.1), gpuRadar->VerticalScanMinAngle());
+    EXPECT_EQ(ignition::math::Angle(0.2), gpuRadar->VerticalScanMaxAngle());
+
+    EXPECT_DOUBLE_EQ(0.08, gpuRadar->RangeMin());
+    EXPECT_DOUBLE_EQ(10.0, gpuRadar->RangeMax());
+    EXPECT_DOUBLE_EQ(0.01, gpuRadar->RangeResolution());
   }
 
   // imu
