@@ -68,41 +68,15 @@ namespace sdf
   ///             <mean>0.98</mean>
   ///             <stddev>0.76</stddev>
   ///         </noise>
+  ///         <h_measures>
+  ///           6
+  ///         </h_measures>
+  ///         <v_measures>
+  ///           4
+  ///         </v_measures>
   ///     </radar>
   /// </sensor>
-  /// ~~~
   ///
-  /// # Example SDF XML using ray type:
-  ///
-  /// ~~~{.xml}
-  /// <sensor name="ray_sensor" type="radar">
-  ///     <pose>1 2 3 0 0 0</pose>
-  ///     <ray>
-  ///         <scan>
-  ///             <horizontal>
-  ///                 <samples>320</samples>
-  ///                 <resolution>0.9</resolution>
-  ///                 <min_angle>1.75</min_angle>
-  ///                 <max_angle>2.94</max_angle>
-  ///             </horizontal>
-  ///             <vertical>
-  ///                 <samples>240</samples>
-  ///                 <resolution>0.8</resolution>
-  ///                 <min_angle>2.75</min_angle>
-  ///                 <max_angle>3.94</max_angle>
-  ///             </vertical>
-  ///         </scan>
-  ///         <range>
-  ///             <min>1.23</min>
-  ///             <max>4.56</max>
-  ///             <resolution>7.89</resolution>
-  ///         </range>
-  ///         <noise type="gaussian">
-  ///             <mean>0.98</mean>
-  ///             <stddev>0.76</stddev>
-  ///         </noise>
-  ///     </ray>
-  /// </sensor>
   /// ~~~
   class SDFORMAT_VISIBLE Radar
   {
@@ -222,6 +196,12 @@ namespace sdf
     /// \biref Set the noise values for the radar sensor.
     /// \param[in] _noise Noise values for the radar sensor.
     public: void SetRadarNoise(const Noise &_noise);
+
+    public: int HMeasures() const;
+    public: void SetHMeasures(int h_measures);
+
+    public: int VMeasures() const;
+    public: void SetVMeasures(int v_measures);
 
     /// \brief Return true if both Radar objects contain the same values.
     /// \param[_in] _radar Radar value to compare.

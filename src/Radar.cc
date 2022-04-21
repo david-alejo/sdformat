@@ -61,6 +61,12 @@ class sdf::Radar::Implementation
 
   /// \brief The SDF element pointer used during load.
   public: sdf::ElementPtr sdf{nullptr};
+
+  /// \brief Number of horizontal measures
+  public: int h_measures{6};
+
+  /// \brief Number of vertical measures
+  public: int v_measures{4};
 };
 
 //////////////////////////////////////////////////
@@ -325,6 +331,25 @@ void Radar::SetRadarNoise(const Noise &_noise)
   this->dataPtr->radarNoise = _noise;
 }
 
+int Radar::HMeasures() const 
+{
+  return this->dataPtr->h_measures;
+}
+    
+void Radar::SetHMeasures(int h_measures) 
+{
+  this->dataPtr->h_measures = h_measures;
+}
+
+int Radar::VMeasures() const 
+{
+  return this->dataPtr->v_measures;
+}
+    
+void Radar::SetVMeasures(int v_measures) 
+{
+  this->dataPtr->v_measures = v_measures;
+}
 //////////////////////////////////////////////////
 bool Radar::operator==(const Radar &_radar) const
 {
