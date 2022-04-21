@@ -22,6 +22,7 @@
 #include <optional>
 #include <utility>
 #include <vector>
+#include <tinyxml2.h>
 #include "sdf/Error.hh"
 #include "sdf/Element.hh"
 #include "sdf/InterfaceElements.hh"
@@ -230,10 +231,14 @@ namespace sdf
     return nullptr;
   }
 
-  /// \brief Function to compute a merged model's proxy frame name
-  /// \param [in] _modelName The merged model's name
-  /// \return The computed frame name
-  std::string computeMergedModelProxyFrameName(const std::string &_modelName);
+  /// \brief Copy all children from the provided tinyxml2 object into the
+  /// provided sdf element pointer.
+  /// \param[in, out] _sdf A valid sdf element pointer.
+  /// \param[in] _xml XML to copy.
+  /// \param[in] _onlyUnknown Set this to true to only copy XML elements that
+  /// do not have a matching description in the provided sdf element pointer.
+  void copyChildren(ElementPtr _sdf, tinyxml2::XMLElement *_xml,
+      const bool _onlyUnknown);
 }
 }
 #endif

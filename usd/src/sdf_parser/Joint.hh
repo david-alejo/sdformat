@@ -15,23 +15,25 @@
  *
 */
 
-#ifndef SDF_USD_SDF_PARSER_VISUAL_HH_
-#define SDF_USD_SDF_PARSER_VISUAL_HH_
+#ifndef SDF_USD_SDF_PARSER_JOINT_HH_
+#define SDF_USD_SDF_PARSER_JOINT_HH_
 
+#include <unordered_map>
 #include <string>
 
-// TODO(adlarkin) this is to remove deprecated "warnings" in usd, these warnings
+// TODO(ahcorde) this is to remove deprecated "warnings" in usd, these warnings
 // are reported using #pragma message so normal diagnostic flags cannot remove
 // them. This workaround requires this block to be used whenever usd is
 // included.
 #pragma push_macro ("__DEPRECATED")
 #undef __DEPRECATED
+#include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/stage.h>
 #pragma pop_macro ("__DEPRECATED")
 
-#include "sdf/Visual.hh"
+#include "sdf/Joint.hh"
+#include "sdf/Model.hh"
 #include "sdf/config.hh"
-#include "sdf/usd/Export.hh"
 #include "sdf/usd/UsdError.hh"
 
 namespace sdf
@@ -41,17 +43,27 @@ namespace sdf
   //
   namespace usd
   {
-    /// \brief Parse an SDF visual into a USD stage.
-    /// \param[in] _visual The SDF visual to parse.
+    /// \brief Parse a SDF joint into a USD stage.
+    /// \param[in] _joint The SDF joint to parse.
     /// \param[in] _stage The stage that should contain the USD representation
-    /// of _visual.
-    /// \param[in] _path The USD path of the parsed visual in _stage, which must
+    /// of _joint. This must be a valid, initialized stage.
+    /// \param[in] _path The USD path of the parsed joint in _stage, which must
     /// be a valid USD path.
+    /// \param[in] _parentModel The model that is the parent of _joint
+    /// \param[in] _linkToUsdPath a map of a link's SDF name to the link's USD
+    /// path. This is used to determine which USD prims should be assigned as
+    /// the USD joint's relative links.
+    /// \param[in] _worldPath The USD path of the world prim. This is needed if
+    /// _joint's parent is the world.
     /// \return UsdErrors, which is a vector of UsdError objects. Each UsdError
-    /// includes an error code and message. An empty vector indicates no error.
-    UsdErrors IGNITION_SDFORMAT_USD_VISIBLE ParseSdfVisual(
-        const sdf::Visual &_visual, pxr::UsdStageRefPtr &_stage,
-        const std::string &_path);
+    /// includes an error code and message. An empty vector indicates no errors
+    /// occurred when parsing _joint to its USD representation.
+    UsdErrors ParseSdfJoint(
+        const sdf::Joint &_joint,
+        pxr::UsdStageRefPtr &_stage, const std::string &_path,
+        const sdf::Model &_parentModel,
+        const std::unordered_map<std::string, pxr::SdfPath> &_linkToUsdPath,
+        const pxr::SdfPath &_worldPath);
   }
   }
 }

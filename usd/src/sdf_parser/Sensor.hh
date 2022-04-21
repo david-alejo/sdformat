@@ -15,8 +15,10 @@
  *
 */
 
-#ifndef SDF_USD_SDF_PARSER_MATERIALS_HH_
-#define SDF_USD_SDF_PARSER_MATERIALS_HH_
+#ifndef SDF_USD_SDF_PARSER_SENSOR_HH_
+#define SDF_USD_SDF_PARSER_SENSOR_HH_
+
+#include <string>
 
 // TODO(ahcorde) this is to remove deprecated "warnings" in usd, these warnings
 // are reported using #pragma message so normal diagnostic flags cannot remove
@@ -24,13 +26,10 @@
 // included.
 #pragma push_macro ("__DEPRECATED")
 #undef __DEPRECATED
-#include <pxr/usd/sdf/path.h>
 #include <pxr/usd/usd/stage.h>
-#include <pxr/usd/usdShade/material.h>
 #pragma pop_macro ("__DEPRECATED")
 
-#include "sdf/Material.hh"
-#include "sdf/usd/Export.hh"
+#include "sdf/Sensor.hh"
 #include "sdf/usd/UsdError.hh"
 #include "sdf/sdf_config.h"
 
@@ -41,18 +40,18 @@ namespace sdf
   //
   namespace usd
   {
-    /// \brief Parse an SDF material into a USD stage.
-    /// \param[in] _materialSdf The SDF material to parse.
+    /// \brief Parse an SDF sensor into a USD stage.
+    /// \param[in] _sensor The SDF sensor to parse.
     /// \param[in] _stage The stage that should contain the USD representation
-    /// of _material.
-    /// \param[out] _materialPath USD Material path
-    /// \return UsdErrors, which is a list of UsdError objects. This list is
-    /// empty if no errors occurred when parsing _materialSdf its USD
-    /// representation
-    UsdErrors IGNITION_SDFORMAT_USD_VISIBLE ParseSdfMaterial(
-        const sdf::Material *_materialSdf,
-        pxr::UsdStageRefPtr &_stage,
-        pxr::SdfPath &_materialPath);
+    /// of _sensor.
+    /// \param[in] _path The USD path of the parsed sensor in _stage, which must
+    /// be a valid USD path.
+    /// \return UsdErrors, which is a vector of UsdError objects. Each UsdError
+    /// includes an error code and message. An empty vector indicates no error.
+    UsdErrors ParseSdfSensor(
+      const sdf::Sensor &_sensor,
+      pxr::UsdStageRefPtr &_stage,
+      const std::string &_path);
   }
   }
 }

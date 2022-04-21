@@ -69,6 +69,24 @@ namespace sdf
 
     /// \brief Invalid material
     INVALID_MATERIAL,
+
+    /// \brief Invalid usd file
+    INVALID_USD_FILE,
+
+    /// \brief Invalid up axis
+    INVALID_UP_AXIS,
+
+    /// \brief Prim is missing a particular attribute
+    PRIM_MISSING_ATTRIBUTE,
+
+    /// \brief Prim is of the incorrect schema type
+    PRIM_INCORRECT_SCHEMA_TYPE,
+
+    /// \brief Parsing of USD object to a SDF object failed.
+    USD_TO_SDF_PARSING_ERROR,
+
+    /// \brief Parsing of USD polygin object to a SDF object failed.
+    USD_TO_SDF_POLYGON_PARSING_ERROR,
   };
 
   class IGNITION_SDFORMAT_USD_VISIBLE UsdError

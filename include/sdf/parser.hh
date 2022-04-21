@@ -46,6 +46,13 @@ namespace sdf
   SDFORMAT_VISIBLE
   bool init(SDFPtr _sdf);
 
+  /// \brief Initialize the SDF interface from the embedded root spec file
+  /// \param[out] _sdf Pointer to an SDF object.
+  /// \param[in] _config Custom parser configuration
+  /// \return True if successful.
+  SDFORMAT_VISIBLE
+  bool init(SDFPtr _sdf, const ParserConfig &_config);
+
   /// \brief Initialize the SDF interface using a file
   /// \param[in] _filename Name of the SDF file
   /// \param[out] _sdf Pointer to an SDF object.
@@ -444,6 +451,13 @@ namespace sdf
   /// \return True if the element should be validated
   SDFORMAT_VISIBLE
   bool shouldValidateElement(sdf::ElementPtr _elem);
+
+  /// \brief Function to compute a merged model's proxy frame name
+  ///
+  /// \param [in] _modelName The merged model's name
+  /// \return The computed frame name
+  SDFORMAT_VISIBLE
+  std::string computeMergedModelProxyFrameName(const std::string &_modelName);
   }
 }
 #endif
