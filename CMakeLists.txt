@@ -5,7 +5,7 @@ if(COMMAND CMAKE_POLICY)
   CMAKE_POLICY(SET CMP0004 NEW)
 endif(COMMAND CMAKE_POLICY)
 
-project (sdformat12 VERSION 12.3.0)
+project (sdformat12 VERSION 12.4.0)
 
 # The protocol version has nothing to do with the package version.
 # It represents the current version of SDFormat implemented by the software
@@ -107,6 +107,7 @@ if (BUILD_SDF)
   ########################################
   # Find ignition utils
   ign_find_package(ignition-utils1 VERSION REQUIRED)
+  ign_find_package(ignition-utils1 COMPONENTS cli REQUIRED_BY usd)
   set(IGN_UTILS_VER ${ignition-utils1_VERSION_MAJOR})
 
   ########################################

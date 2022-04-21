@@ -20,7 +20,7 @@
 
 #include <string>
 
-// TODO(adlarkin):this is to remove deprecated "warnings" in usd, these warnings
+// TODO(adlarkin) this is to remove deprecated "warnings" in usd, these warnings
 // are reported using #pragma message so normal diagnostic flags cannot remove
 // them. This workaround requires this block to be used whenever usd is
 // included.
@@ -30,7 +30,6 @@
 #pragma pop_macro ("__DEPRECATED")
 
 #include "sdf/config.hh"
-#include "sdf/usd/Export.hh"
 #include "sdf/usd/UsdError.hh"
 #include "sdf/Light.hh"
 
@@ -49,7 +48,7 @@ namespace sdf
     /// be a valid USD path.
     /// \return UsdErrors, which is a vector of UsdError objects. Each UsdError
     /// includes an error code and message. An empty vector indicates no error.
-    UsdErrors IGNITION_SDFORMAT_USD_VISIBLE ParseSdfLight(
+    UsdErrors ParseSdfLight(
         const sdf::Light &_light,
         pxr::UsdStageRefPtr &_stage,
         const std::string &_path);
